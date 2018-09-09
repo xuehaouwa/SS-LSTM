@@ -165,7 +165,7 @@ def log_circle_occupancy_map(frame_ID, ped_ID, dimensions, neighborhood_radius, 
                 other_x, other_y = ped_list[otherIndex][-1], ped_list[otherIndex][-2]
                 other_distance = math.sqrt(
                     (other_x * width - current_x * width) ** 2 + (other_y * height - current_y * height) ** 2)
-                log_distance = math.log2(other_distance)
+                log_distance = math.log(other_distance,2)  #was using log2, showed error
                 angle = cal_angle(current_x, current_y, other_x, other_y)
                 if other_distance >= 8:
                     continue
