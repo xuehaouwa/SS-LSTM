@@ -1,0 +1,11 @@
+I need three different numpy arrays for the code to run for even one dataset. According to the author, they can be created using functions in data_process.py and SSLSTM_model.py. obs.npy amd pred.npy are to be made using data_process.py.
+
+observations:
+data_process imports files that don't exist. I need to check if their is a roundabout -- They are not being used for our puprpose, can be avoided.
+their is an initialising variable required - dup_threshold. Need to get to know what it is and is it required? -- It is required in a statemement in get_traj, which uses a function traj_filter, which again is neither defined nor used anywhere else except inside an if condition. So removing the condition to directly execute it and removing dup_threshold parameter
+1. replaced log2 with log(x,2) in occupancy as was throwing error. 
+2. Also changed path and file naming structure in image tensor formation in SSLSTM_model.py
+
+find out: whats shownum and minloss -- need to set these values accordingly for the run. Kept randomly and the coder an. Hence the cde has been brought to running state with just one dataset. Problem maybe - It works as if one dataset is just one video. So we will be handling that amount of datasets. But its just a titular problem, not a real issue.
+
+Need to also study what is meant by mean ADE/FDE and ALl ADE/FDE

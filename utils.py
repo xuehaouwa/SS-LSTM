@@ -9,7 +9,7 @@ import os
 import math
 
 from occupancy import get_rectangular_occupancy_map
-from occupancy import NYGC_rectangular_occupancy_map
+#from occupancy import NYGC_rectangular_occupancy_map
 from occupancy import get_circle_occupancy_map, log_circle_occupancy_map
 
 

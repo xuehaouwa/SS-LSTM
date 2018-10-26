@@ -27,6 +27,7 @@ from utils import circle_group_model_input, log_group_model_input, group_model_i
 from utils import preprocess, get_traj_like, get_obs_pred_like, person_model_input, model_expected_ouput
 from keras.callbacks import History
 import heapq
+import data_process as dp
 
 
 def calculate_FDE(test_label, predicted_output, test_num, show_num):
@@ -63,8 +64,19 @@ def calculate_ADE(test_label, predicted_output, test_num, predicting_frame_num, 
 
 # img reading functions
 def image_tensor(data_dir, data_str, frame_ID):
-    img_dir = data_dir + data_str + str(frame_ID) + '.jpg'
+    #print('Frame id: ')
+    #print(frame_ID)
+    length=6
+    id=''
+    for i in range(0,6-len(str(frame_ID))):
+        id=id+'0'
+    id=id+str(frame_ID)
+    #print(id)
+    #img_dir = data_dir + data_str + str(frame_ID) + '.jpg'
+    img_dir = data_dir+'/'+id+'.jpg'
+    #print(img_dir)
     img = cv2.imread(img_dir)
+    #print(img)
     img = cv2.resize(img, (720, 576))
     #    out = tf.stack(img)
     return img
@@ -87,8 +99,8 @@ predicting_frame_num = 12
 
 hidden_size = 128
 tsteps = observed_frame_num
-dimensions_1 = [720, 576]
-dimensions_2 = [640, 480]
+dimensions_1 = [720, 576]  #eth hotel
+dimensions_2 = [640, 480]  #eth univ 
 img_width_1 = 720
 img_height_1 = 576
 img_width_2 = 640
@@ -127,9 +139,15 @@ data_str_5 = 'zara02-'
 
 # data_dir_1
 raw_data_1, numPeds_1 = preprocess(data_dir_1)
-obs_1 = np.load('./data/obs_1.npy')
-pred_1 = np.load('./data/pred_1.npy')
-img_1 = np.load('./data/img_1.npy')
+print(raw_data_1)
+print(numPeds_1)
+check = dp.DataProcesser(data_dir_1,observed_frame_num,predicting_frame_num)
+#obs_1 = np.load('./data/obs_1.npy')
+#pred_1 = np.load('./data/pred_1.npy')
+obs_1=check.obs
+pred_1=check.pred
+#img_1 = np.load('./data/img_1.npy')
+img_1=all_image_tensor(data_dir_1,data_str_1,obs_1,img_width_1,img_height_1)
 person_input_1 = person_model_input(obs_1, observed_frame_num)
 expected_ouput_1 = model_expected_ouput(pred_1, predicting_frame_num)
 group_log_1 = log_group_model_input(obs_1, observed_frame_num, neighborhood_size, dimensions_1, neighborhood_radius,
@@ -138,6 +156,7 @@ group_grid_1 = group_model_input(obs_1, observed_frame_num, neighborhood_size, d
 group_circle_1 = circle_group_model_input(obs_1, observed_frame_num, neighborhood_size, dimensions_1,
                                           neighborhood_radius, grid_radius, grid_angle, circle_map_weights, raw_data_1)
 
+'''
 # data_dir_2
 raw_data_2, numPeds_2 = preprocess(data_dir_2)
 obs_2 = np.load('./data/obs_2.npy')
@@ -178,6 +197,7 @@ group_circle_4 = circle_group_model_input(obs_4, observed_frame_num, neighborhoo
                                           neighborhood_radius, grid_radius, grid_angle, circle_map_weights, raw_data_4)
 
 # data_dir_1
+
 raw_data_5, numPeds_5 = preprocess(data_dir_5)
 obs_5 = np.load('./data/obs_5.npy')
 pred_5 = np.load('./data/pred_5.npy')
@@ -190,7 +210,7 @@ group_grid_5 = group_model_input(obs_5, observed_frame_num, neighborhood_size, d
 group_circle_5 = circle_group_model_input(obs_5, observed_frame_num, neighborhood_size, dimensions_1,
                                           neighborhood_radius, grid_radius, grid_angle, circle_map_weights, raw_data_5)
 
-
+'''
 ########################################
 
 
@@ -218,23 +238,23 @@ def CNN(img_rows, img_cols, img_channels=3):
 def all_run(epochs, predicting_frame_num, leave_dataset_index, map_index, show_num, min_loss):
     if map_index == 1:
         group_input_1 = group_grid_1
-        group_input_2 = group_grid_2
-        group_input_3 = group_grid_3
-        group_input_4 = group_grid_4
-        group_input_5 = group_grid_5
+        # group_input_2 = group_grid_2
+        # group_input_3 = group_grid_3
+        # group_input_4 = group_grid_4
+        # group_input_5 = group_grid_5
     elif map_index == 2:
         group_input_1 = group_circle_1
-        group_input_2 = group_circle_2
-        group_input_3 = group_circle_3
-        group_input_4 = group_circle_4
-        group_input_5 = group_circle_5
+        # group_input_2 = group_circle_2
+        # group_input_3 = group_circle_3
+        # group_input_4 = group_circle_4
+        # group_input_5 = group_circle_5
     elif map_index == 3:
         group_input_1 = group_log_1
-        group_input_2 = group_log_2
-        group_input_3 = group_log_3
-        group_input_4 = group_log_4
-        group_input_5 = group_log_5
-
+        # group_input_2 = group_log_2
+        # group_input_3 = group_log_3
+        # group_input_4 = group_log_4
+        # group_input_5 = group_log_5
+    '''all_run(epochs, predicting_frame_num, leave_dataset_index, map_index, show_num, min_loss)
     if leave_dataset_index == 1:
         person_input = np.concatenate(
             (person_input_2, person_input_3, person_input_4, person_input_5))
@@ -252,7 +272,7 @@ def all_run(epochs, predicting_frame_num, leave_dataset_index, map_index, show_n
         group_input = np.concatenate((group_input_1, group_input_3, group_input_4, group_input_5))
         scene_input = np.concatenate((img_1, img_3, img_4, img_5, img_2))
         test_input = [img_2, group_input_2 person_input_2]
-        test_output = expected_ouput_2
+        test_output = expected_ouput_2all_run(epochs, predicting_frame_num, leave_dataset_index, map_index, show_num, min_loss)
     elif leave_dataset_index == 3:
         person_input = np.concatenate((person_input_1, person_input_2, person_input_4, person_input_5))
         expected_ouput = np.concatenate((expected_ouput_1, expected_ouput_2, expected_ouput_4, expected_ouput_5))
@@ -274,6 +294,13 @@ def all_run(epochs, predicting_frame_num, leave_dataset_index, map_index, show_n
         scene_input = np.concatenate((img_1, img_2, img_3, img_4))
         test_input = [img_5, group_input_5, person_input_5]
         test_output = expected_ouput_5
+    '''
+    person_input=person_input_1
+    expected_ouput=expected_ouput_1
+    group_input=group_input_1
+    scene_input=img_1
+    test_input=[img_1,group_input_1,person_input_1]
+    test_output=expected_ouput_1
 
     print('data load done!')
 
@@ -281,7 +308,7 @@ def all_run(epochs, predicting_frame_num, leave_dataset_index, map_index, show_n
     scene_scale.add(RepeatVector(tsteps))
     scene_scale.add(GRU(hidden_size,
                         input_shape=(tsteps, 512),
-                        batch_size=batch_size,
+                        batch_size=batch_size,#all_run(epochs, predicting_frame_num, leave_dataset_index, map_index, show_num, min_loss)
                         return_sequences=False,
                         stateful=False,
                         dropout=0.2))
@@ -339,9 +366,10 @@ def all_run(epochs, predicting_frame_num, leave_dataset_index, map_index, show_n
     mean_ADE = calculate_ADE(test_output, predicted_output, len(test_output), 12, show_num)
     all_FDE = calculate_FDE(test_output, predicted_output, len(test_output), len(test_output))
     all_ADE = calculate_ADE(test_output, predicted_output, len(test_output), 12, len(test_output))
-    print('ssmap_' + str(map_index) + '_ETHUCY_' + str(leave_dataset_index) + 'ADE:', mean_ADE)
-    print('ssmap_' + str(map_index) + '_ETHUCY_' + str(leave_dataset_index) + 'FDE:', mean_FDE)
+    print('ssmap_' + str(map_index) + '_ETHUCY_' + str(leave_dataset_index) + 'mean ADE:', mean_ADE)
+    print('ssmap_' + str(map_index) + '_ETHUCY_' + str(leave_dataset_index) + 'mean FDE:', mean_FDE)
     print('ssmap_' + str(map_index) + '_ETHUCY_' + str(leave_dataset_index) + 'all ADE:', all_ADE)
     print('ssmap_' + str(map_index) + '_ETHUCY_' + str(leave_dataset_index) + 'all FDE:', all_FDE)
 
     return predicted_output, mean_ADE, mean_FDE, all_ADE, all_FDE
+all_run(4, predicting_frame_num, 0, 1, 1, 0)
